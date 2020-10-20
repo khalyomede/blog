@@ -1,0 +1,27 @@
+{
+  "name": "blog",
+  "private": true,
+  "scripts": {
+    "build": "gridsome build",
+    "develop": "gridsome develop",
+    "explore": "gridsome explore"
+  },
+  "dependencies": {
+    "gridsome": "^0.7.0"
+  },
+  "devDependencies": {
+    "@gridsome/remark-prismjs": "^0.4.0",
+    "@gridsome/transformer-remark": "0.6.*",
+    "@gridsome/vue-remark": "0.2.*",
+    "@noxify/gridsome-remark-classes": "^1.0.0",
+    "gridsome-plugin-pug": "0.0.*",
+    "gridsome-plugin-robots-txt": "^1.0.2",
+    "gridsome-plugin-tailwindcss": "3.*",
+    "gridsome-plugin-webpack-size": "^1.0.2",
+    "node-sass": "^4.14.1",
+    "pug": "3.*",
+    "reading-time": "1.*",
+    "sass-loader": "7.*",
+    "time-ago": "0.2.*"
+  }
+}
