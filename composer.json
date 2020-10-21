@@ -1,0 +1,26 @@
+{
+  "name": "khalyomede/blo",
+  "description": "My personal blog.",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Khalyomede",
+      "email": "khalyomede@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "tightenco/jigsaw": "1.*"
+  },
+  "scripts": {
+    "build": "jigsaw build",
+    "serve": "jigsaw serve"
+  },
+  "config": {
+    "process-timeout": 0
+  },
+  "require-dev": {
+    "mtownsend/read-time": "1.*"
+  }
+}

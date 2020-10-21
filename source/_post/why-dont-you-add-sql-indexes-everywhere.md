@@ -1,0 +1,193 @@
+---
+extends: _layouts.post
+section: content
+title: Why don't you add SQL indexes everywhere?
+excerpt: They are known to improved performance, so why don't we add them to every columns?
+published_at: "2020-10-21 21:29:00"
+published: true
+---
+
+Spoiler: don't do this at home. Surprinsingly, I found the reason behind this from a question related to... PHP.
+
+I think the fact that, adding an index to a slow query, and then reducing the time from seconds to a few milliseconds helps to put this idea that indexes are magic.
+
+## An explaination from the programming perspective
+
+I had this need to manipulate an array of arrays, kind of like SQL does. By querying on it, filtering it (this was at a time when I did not knew [Eloquent](https://laravel.com/docs/8.x/eloquent) nor the [Collections](https://laravel.com/docs/8.x/collections), and I was trying to roll my own ORM).
+
+I wanted to provide the fastest ORM possible, lightweight, but featureful. I tried to stress test my library, and I noticed it was actually way slower than a native SQL query. A query that would be done in a few milliseconds would last a few seconds when using my algorithm.
+
+This was coming from the way I was joigning my results between themselves. So I asked this [Stackoverflow question](https://stackoverflow.com/questions/48529911/performant-array-join), and the answer illuminated not only on my issue, but also on how indexes work.
+
+## An explaination from the SQL side
+
+When you join 2 tables, the query engine needs to know on which column you make the join. Let's imagine you have 2 tables, books and authors.
+
+Here is what the author table contains:
+
+```
+id	firstname	lastname
+1	Danielle 	Steel
+2	Harold 		Robbins
+3	Corín 		Tellado
+...
+```
+
+And here is the books table contains:
+
+```
+id	title						published	author_id
+1	The Stand					1990-01-01	12
+2	Misery						1987-06-08	46
+3	The Silence of the Lambs	1998-07-14	46
+...
+```
+
+Your SQL query will look like this:
+
+```sql
+SELECT
+	book.title,
+	author.firstname,
+	author.lastname
+FROM
+	book
+INNER JOIN
+	author ON author.id = book.author_id
+```
+
+When the SQL engine encouters this instruction, it will start from the book table, and check, for each author, if it matches the `author_id`, then it pulls the information. This would gives something like this:
+
+```
+book 1 with author_id 12 matches author 1? No
+book 1 with author_id 12 matches author 2? No
+book 1 with author_id 12 matches author 3? No
+...
+book 1 with author_id 12 matches author 11? No
+book 1 with author_id 12 matches author 12? Yes! Pull the information
+
+book 2 with author_id 46 matches author 1? No
+book 2 with author_id 46 matches author 2? No
+book 2 with author_id 46 matches author 3? No
+...
+book 2 with author_id 46 matches author 45? No
+book 2 with author_id 46 matches author 46? Yes! Pull the information
+```
+
+Etc... for each books on the table. You might have noticed how costly it can be if your book table is filled with millions of books.
+
+## Indexes to solve a O(N²) complexity
+
+If you take the worst case, saying the last author is #100, and every of your millions books are written by the author #100, this algorithm will have to check (number of books x number of author) times before it finishes.
+
+We can note O the complexity, equals to N books x M author, which can be represented as O(N\*M), but as we are lazy we prefer writing O(N²) to show the real issue is that it does a lot of computation, and the complexity is doubling.
+
+Now let us try to implement the same algorithm, but in Javascript.
+
+```javascript
+const books = [
+  {
+    id: 1,
+    title: "The Stand",
+    author_id: 12,
+  },
+  {
+    id: 2,
+    title: "Misery",
+    author_id: 46,
+  },
+  {
+    id: 3,
+    title: "The Silence of the Lambs",
+    author_id: 46,
+  },
+];
+
+const authors = [
+  {
+    id: 1,
+    firstname: "Danielle",
+    lastname: "Steel",
+  },
+  {
+    id: 2,
+    firstname: "Harold",
+    lastname: "Robbins",
+  },
+  {
+    id: 3,
+    firstname: "Corín",
+    lastname: "Tellado",
+  },
+];
+
+for (const book of books) {
+  for (const author of authors) {
+    if (book.author_id === author.id) {
+      // Pull the information
+    }
+  }
+}
+```
+
+The trick when using indexes, is that you have to lower the complexity of the search algorithm. Idealy, your complexity should be the number of items you are checking for. So if you are checking the links between books and author, you should try to reach a comparison number equal to the number of books, which means only 1 comparison per books. We can note this O(N).
+
+Going from O(N²) to O(N) is a huge performance boost.
+
+If you saw the answer of the Stackoverflow question I was mentioning earlier, you might have a clue on how to do it.
+
+The idea is to be able to "attack" the author array, and check only if the author id linked to the book is inside our author list. Let's change our author variable like so:
+
+```javascript
+const authors = {
+  1: {
+    id: 1,
+    firstname: "Danielle",
+    lastname: "Steel",
+  },
+  2: {
+    id: 2,
+    firstname: "Harold",
+    lastname: "Robbins",
+  },
+  3: {
+    id: 3,
+    firstname: "Corín",
+    lastname: "Tellado",
+  },
+};
+```
+
+First, we turn this array into an object. Second, the object contains integer keys, which hold the data. If it sounds weird, it will allow us to "attack" this object like so:
+
+```javascript
+console.log(authors[12]); // {id: 12, firstname: "John", lastname: "Doe"}
+```
+
+And if we plug this to the search algorithm above, this gives us this code:
+
+```javascript
+for (const book of books) {
+  const author = authors[book.author_id];
+
+  // Create a final object of the aggregated data
+}
+```
+
+As you can see, we managed to remove this inner loop, which is reflecting passing from O(N²) to O(N).
+
+## Why don't we add indexes on every columns?
+
+To come back in the SQL realm, things do not exactly occurs like in Javascript. The idea is the same, but instead of mutating a list of records into an attackable object of indexed records, setting up an index into a column will create a new space in the SQL server, which will contains the indexed ids corresponding to the records.
+
+Which means indexes will take some aditional spaces, like having introduced a new data in the object would take some space in the final Javascript file.
+
+If you are storing logs in your indexed table, it can become tremendeously huge to store indexes on every columns, so be careful to only use indexes:
+
+- For columns that are most likely be targeted by joins (I mostly think of primary keys)
+- For columns that you know are uniques (using an SQL unique index)
+- For columns that are not primary keys, but you want to be able to join, and perform agreagation operations like DISTINCT, ...
+
+## In conclusion
+
+SQL indexes are really powerful, but a great power comes with great responsibilities, so do like Peter Parker, and don't add indexes on every columns!

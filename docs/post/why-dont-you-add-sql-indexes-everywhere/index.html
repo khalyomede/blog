@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Why don&#039;t you add SQL indexes everywhere?</title>
+	<meta name="description" content="They are known to improved performance, so why don&#039;t we add them to every columns?">
+	<link rel="stylesheet" href="/assets/build/css/post.css?id=05503ee1ed47e139775c" media="none" onload="this.media = 'all';">
+</head>
+<body class="max-w-screen-md mx-auto px-6 pb-4">
+	<header>
+		<nav class="table mt-4 mb-10 w-full">
+	<a href="/" class="font-bold hover:underline table-cell">Khalyomede</a>
+	<div class="table-cell text-right">
+		<a href="/about/" class="hover:underline">About</a>
+	</div>
+</nav>
+	</header>
+	<main>
+		<h1 class="text-3xl mb-4">Why don&#039;t you add SQL indexes everywhere?</h1>
+		<article>
+			<p>Spoiler: don't do this at home. Surprinsingly, I found the reason behind this from a question related to... PHP.</p>
+
+<p>I think the fact that, adding an index to a slow query, and then reducing the time from seconds to a few milliseconds helps to put this idea that indexes are magic.</p>
+
+<h2>An explaination from the programming perspective</h2>
+
+<p>I had this need to manipulate an array of arrays, kind of like SQL does. By querying on it, filtering it (this was at a time when I did not knew <a href="https://laravel.com/docs/8.x/eloquent">Eloquent</a> nor the <a href="https://laravel.com/docs/8.x/collections">Collections</a>, and I was trying to roll my own ORM).</p>
+
+<p>I wanted to provide the fastest ORM possible, lightweight, but featureful. I tried to stress test my library, and I noticed it was actually way slower than a native SQL query. A query that would be done in a few milliseconds would last a few seconds when using my algorithm.</p>
+
+<p>This was coming from the way I was joigning my results between themselves. So I asked this <a href="https://stackoverflow.com/questions/48529911/performant-array-join">Stackoverflow question</a>, and the answer illuminated not only on my issue, but also on how indexes work.</p>
+
+<h2>An explaination from the SQL side</h2>
+
+<p>When you join 2 tables, the query engine needs to know on which column you make the join. Let's imagine you have 2 tables, books and authors.</p>
+
+<p>Here is what the author table contains:</p>
+
+<pre><code>id  firstname   lastname
+1   Danielle    Steel
+2   Harold      Robbins
+3   Corín       Tellado
+...
+</code></pre>
+
+<p>And here is the books table contains:</p>
+
+<pre><code>id  title                       published   author_id
+1   The Stand                   1990-01-01  12
+2   Misery                      1987-06-08  46
+3   The Silence of the Lambs    1998-07-14  46
+...
+</code></pre>
+
+<p>Your SQL query will look like this:</p>
+
+<pre><code class="language-sql">SELECT
+    book.title,
+    author.firstname,
+    author.lastname
+FROM
+    book
+INNER JOIN
+    author ON author.id = book.author_id
+</code></pre>
+
+<p>When the SQL engine encouters this instruction, it will start from the book table, and check, for each author, if it matches the <code>author_id</code>, then it pulls the information. This would gives something like this:</p>
+
+<pre><code>book 1 with author_id 12 matches author 1? No
+book 1 with author_id 12 matches author 2? No
+book 1 with author_id 12 matches author 3? No
+...
+book 1 with author_id 12 matches author 11? No
+book 1 with author_id 12 matches author 12? Yes! Pull the information
+
+book 2 with author_id 46 matches author 1? No
+book 2 with author_id 46 matches author 2? No
+book 2 with author_id 46 matches author 3? No
+...
+book 2 with author_id 46 matches author 45? No
+book 2 with author_id 46 matches author 46? Yes! Pull the information
+</code></pre>
+
+<p>Etc... for each books on the table. You might have noticed how costly it can be if your book table is filled with millions of books.</p>
+
+<h2>Indexes to solve a O(N²) complexity</h2>
+
+<p>If you take the worst case, saying the last author is #100, and every of your millions books are written by the author #100, this algorithm will have to check (number of books x number of author) times before it finishes.</p>
+
+<p>We can note O the complexity, equals to N books x M author, which can be represented as O(N&#42;M), but as we are lazy we prefer writing O(N²) to show the real issue is that it does a lot of computation, and the complexity is doubling.</p>
+
+<p>Now let us try to implement the same algorithm, but in Javascript.</p>
+
+<pre><code class="language-javascript">const books = [
+  {
+    id: 1,
+    title: "The Stand",
+    author_id: 12,
+  },
+  {
+    id: 2,
+    title: "Misery",
+    author_id: 46,
+  },
+  {
+    id: 3,
+    title: "The Silence of the Lambs",
+    author_id: 46,
+  },
+];
+
+const authors = [
+  {
+    id: 1,
+    firstname: "Danielle",
+    lastname: "Steel",
+  },
+  {
+    id: 2,
+    firstname: "Harold",
+    lastname: "Robbins",
+  },
+  {
+    id: 3,
+    firstname: "Corín",
+    lastname: "Tellado",
+  },
+];
+
+for (const book of books) {
+  for (const author of authors) {
+    if (book.author_id === author.id) {
+      // Pull the information
+    }
+  }
+}
+</code></pre>
+
+<p>The trick when using indexes, is that you have to lower the complexity of the search algorithm. Idealy, your complexity should be the number of items you are checking for. So if you are checking the links between books and author, you should try to reach a comparison number equal to the number of books, which means only 1 comparison per books. We can note this O(N).</p>
+
+<p>Going from O(N²) to O(N) is a huge performance boost.</p>
+
+<p>If you saw the answer of the Stackoverflow question I was mentioning earlier, you might have a clue on how to do it.</p>
+
+<p>The idea is to be able to "attack" the author array, and check only if the author id linked to the book is inside our author list. Let's change our author variable like so:</p>
+
+<pre><code class="language-javascript">const authors = {
+  1: {
+    id: 1,
+    firstname: "Danielle",
+    lastname: "Steel",
+  },
+  2: {
+    id: 2,
+    firstname: "Harold",
+    lastname: "Robbins",
+  },
+  3: {
+    id: 3,
+    firstname: "Corín",
+    lastname: "Tellado",
+  },
+};
+</code></pre>
+
+<p>First, we turn this array into an object. Second, the object contains integer keys, which hold the data. If it sounds weird, it will allow us to "attack" this object like so:</p>
+
+<pre><code class="language-javascript">console.log(authors[12]); // {id: 12, firstname: "John", lastname: "Doe"}
+</code></pre>
+
+<p>And if we plug this to the search algorithm above, this gives us this code:</p>
+
+<pre><code class="language-javascript">for (const book of books) {
+  const author = authors[book.author_id];
+
+  // Create a final object of the aggregated data
+}
+</code></pre>
+
+<p>As you can see, we managed to remove this inner loop, which is reflecting passing from O(N²) to O(N).</p>
+
+<h2>Why don't we add indexes on every columns?</h2>
+
+<p>To come back in the SQL realm, things do not exactly occurs like in Javascript. The idea is the same, but instead of mutating a list of records into an attackable object of indexed records, setting up an index into a column will create a new space in the SQL server, which will contains the indexed ids corresponding to the records.</p>
+
+<p>Which means indexes will take some aditional spaces, like having introduced a new data in the object would take some space in the final Javascript file.</p>
+
+<p>If you are storing logs in your indexed table, it can become tremendeously huge to store indexes on every columns, so be careful to only use indexes:</p>
+
+<ul>
+<li>For columns that are most likely be targeted by joins (I mostly think of primary keys)</li>
+<li>For columns that you know are uniques (using an SQL unique index)</li>
+<li>For columns that are not primary keys, but you want to be able to join, and perform agreagation operations like DISTINCT, ...</li>
+</ul>
+
+<h2>In conclusion</h2>
+
+<p>SQL indexes are really powerful, but a great power comes with great responsibilities, so do like Peter Parker, and don't add indexes on every columns!</p>
+		</article>
+	</main>
+	<script type="text/javascript" src="/assets/build/js/post.js?id=3923d98d4dad15d46aa9"></script>
+</body>
+</html>

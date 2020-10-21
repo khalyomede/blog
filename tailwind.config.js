@@ -3,7 +3,9 @@ module.exports = {
     // removeDeprecatedGapUtilities: true,
     // purgeLayersByDefault: true,
   },
-  purge: [],
+  purge: [
+	"./source/**/*.blade.php",
+  ],
   theme: {
     extend: {},
   },

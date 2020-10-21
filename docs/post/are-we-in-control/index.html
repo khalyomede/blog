@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Are we in control?</title>
+	<meta name="description" content="A reflexion toward a predictible and safe future.">
+	<link rel="stylesheet" href="/assets/build/css/post.css?id=05503ee1ed47e139775c" media="none" onload="this.media = 'all';">
+</head>
+<body class="max-w-screen-md mx-auto px-6 pb-4">
+	<header>
+		<nav class="table mt-4 mb-10 w-full">
+	<a href="/" class="font-bold hover:underline table-cell">Khalyomede</a>
+	<div class="table-cell text-right">
+		<a href="/about/" class="hover:underline">About</a>
+	</div>
+</nav>
+	</header>
+	<main>
+		<h1 class="text-3xl mb-4">Are we in control?</h1>
+		<article>
+			<p>There was a period of my life where I knew I could differentiate cats and dogs using <a href="https://packagist.org/packages/php-ai/php-ml">php-ai/php-ml</a>. Then life gave me a slap on the face and I came back building web apps...</p>
+
+<h2>What is inside?</h2>
+
+<p>I am someone that loves simplicity, and when I can, I will happily let me carry by a nice library with a beautiful API. At such point that I could potentially not care about <strong>how</strong> it is made, since the job is done.</p>
+
+<p>There was this funny moment, still trying to figure out the best parameters possible for using <a href="https://www.php.net/manual/fr/book.fann.php">FANN</a> (Fast Artificial Neural Network).</p>
+
+<p>I would let my computer run its learning for hours only to found out that the prediction were less than 30% correct.</p>
+
+<p>It was at this moment I wanted to understand what was happening. What was the algorithm was doing at which moment, for which reason. It was my ego speaking, trying to figure out why this genius idea to use such parameters would not work as expected. But it was also some kind of lucidity that all of a sudden pushed me to know, how I could figure this out.</p>
+
+<h2>Back on my web apps</h2>
+
+<p>I completely refocused on building web apps, and everything went clear.</p>
+
+<p>Set up a route, create a controller, scaffold a view, build your assets. Boom, done. Your page is up. Millions of views (finger crossed... just joking, have some pity for my AWS t2.micro).</p>
+
+<p>Then came the moment when you work with team mates, on an existing project, with constructed business rules, and the code is way more complex than your static blog.</p>
+
+<p>At one point I had this error I could not figure out neither how to reproduce it, nor how it might have occured (or how it have not occured, because we were speaking of a queue job that was supposed to trigger, but the record in database showed that it never did).</p>
+
+<p>At this exact moment, I was having this thought again: how, as humans, can we know exactly what the program does.</p>
+
+<h2>What the program did, when, why?</h2>
+
+<p>That is a quite paradoxal question. We are the author of this algorithm. We can read code. Are not we supposed to answer this question? At least, that is what your product management team expected from you since they hired you, isn't it?</p>
+
+<p>Or is it so impossible that we are lossing control over what we write?</p>
+
+<p>At this moment, I tried to find some ways to sort of log <em>everything</em>, like every call to functions, every conditions passed, etc...</p>
+
+<p>For example, let's take an example. You are hired by a blog website, and this program is displaying the published blog posts in the home page:</p>
+
+<pre><code class="language-php">function arrayToObjects(array $array): array
+{
+  return array_map(function($item) {
+    return (object) $item;
+  }, $array);
+}
+
+$posts = [
+  [
+    "title" =&gt; "Are we in control?",
+    "published" =&gt; false,
+  ],
+  [
+    "title" =&gt; "Decoupled programing",
+    "published" =&gt; true,
+  ],
+  [
+    "title" =&gt; "Quick home made fuzzy search",
+    "published" =&gt; true,
+  ],
+];
+
+$posts = arrayToObjects($posts);
+
+foreach ($posts as $post) {
+  if ($post-&gt;publshed) {
+    echo $post-&gt;title . PHP_EOL;
+  }
+}
+</code></pre>
+
+<p>And you have one bug ticket, where one of the user said he did not saw any articles.</p>
+
+<p>Before you got to figure out what is happening, one of your dev mate had to edit the style of the listed blog posts, but he saw one typo. He decides to correct it in order to be able to see the blog posts and edit the CSS:</p>
+
+<pre><code class="language-diff">-if ($post-&gt;publshed) {
++if ($post-&gt;published) {
+</code></pre>
+
+<p>So your team mate ticket is published on master (or should I say, main?) branch, everything is fine.</p>
+
+<p>Some months pass, tickets are done, master is updated, ... And here comes this ticket where you need to figure out the error enonced previously: blog posts have not been displayed for this user.</p>
+
+<p>You check on the code, nothing weird. You run the server, blog posts are displayed well. The product owner knows it too, because blogs posts are well displayed on the production server too.</p>
+
+<p>How can you figure out what happened? Will you say "huh, you know, maybe just a little downtime from the server I guess".</p>
+
+<p>And this is honestly something I practiced from time to time, when something was so illogical, I could not believe it did not worked as written in the code.</p>
+
+<h2>Can we do better?</h2>
+
+<p>Now, I am asking this open question: do you think we can have a way to know exactly what happened, at anytime, without any extra effort (apart from writing the code)?</p>
+
+<p>This is something I would dream of, taking again the previous code:</p>
+
+<pre><code>[2020-10-21 21:09:00.169357] assignement of array(3) {
+  [0] =&gt; object(stdClass)#2 (2) {
+    ["title"]=&gt; string(18) "Are we in control?"
+    ["published"]=&gt; bool(false)
+  }
+  [1] =&gt; object(stdClass)#3 (2) {
+    ["title"]=&gt; string(20) "Decoupled programing"
+    ["published"]=&gt; bool(true)
+  }
+  [2] =&gt; object(stdClass)#4 (2) {
+    ["title"]=&gt; string(28) "Quick home made fuzzy search"
+    ["published"]=&gt; bool(true)
+  }
+} to $posts
+
+[2020-10-21 21:09:00.170093] assignment of object(stdClass)#2 (2) {
+    ["title"]=&gt; string(18) "Are we in control?"
+    ["published"]=&gt; bool(false)
+} to $post in iteration #1
+
+[2020-10-21 21:09:00.171240] condition $post-&gt;published did not matched
+
+[2020-10-21 21:09:00.171393] assignment of object(stdClass)#2 (2) {
+    ["title"]=&gt; string(18) "Are we in control?"
+    ["published"]=&gt; bool(false)
+} to $post in iteration #1
+
+[2020-10-21 21:09:00.171571] condition $post-&gt;published matched
+
+
+[2020-10-21 21:09:00.171547] echoing "Decoupled programing"
+
+...
+</code></pre>
+
+<p>This way, you answer the why, the when and the what at the same time. However, this would greatly impact performance as it would need a kind of extra job and file writing from the language interpreter, which is something I obviously know is enough CPU costing.</p>
+
+<p>This would definitively be of a great help, but also would cost a lot. I think it would be opt-in by default of course, and would at least be useful on development environments.</p>
+
+<p>If any form of this kind of concept would ever see the light, I know I would be the kind of person to enable it anyway, in production and locally.</p>
+
+<p>And I am convinced that this kind of job would help us be better aware of what happens <strong>exactly</strong>, not using our ego and some asumptions. I don't trust my feeling, but I trust in something I can trace, read, store, share.</p>
+
+<p>And I think if my young self would have this kind of tools some years ago while trying to figure out if an image of a tabby cat is a cat and not a dog using machine learning, having this kind of information would have at least let me know exactly how and why I s&#42;&#42;k so much in AI programing.</p>
+		</article>
+	</main>
+	<script type="text/javascript" src="/assets/build/js/post.js?id=3923d98d4dad15d46aa9"></script>
+</body>
+</html>

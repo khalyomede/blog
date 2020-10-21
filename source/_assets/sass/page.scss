@@ -1,0 +1,51 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+h2 {
+  @apply mb-4;
+  @apply mt-2;
+  @apply text-2xl;
+}
+
+p {
+  @apply mb-2;
+}
+
+blockquote {
+  @apply my-4;
+  @apply block;
+  @apply text-right;
+  @apply text-gray-700;
+  @apply text-lg;
+  @apply italic;
+}
+
+pre {
+  @apply my-4;
+}
+
+code {
+  @apply rounded-sm;
+}
+
+main {
+  a {
+    @apply text-blue-700;
+
+    &:hover {
+      @apply underline;
+    }
+  }
+}
+
+ul {
+  @apply list-disc;
+  @apply list-inside;
+  @apply mb-2;
+}

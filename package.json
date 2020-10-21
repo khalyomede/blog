@@ -1,27 +1,22 @@
 {
-  "name": "blog",
   "private": true,
   "scripts": {
-    "build": "gridsome build",
-    "develop": "gridsome develop",
-    "explore": "gridsome explore"
-  },
-  "dependencies": {
-    "gridsome": "^0.7.0"
+    "local": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --env=local --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "staging": "cross-env NODE_ENV=staging node_modules/webpack/bin/webpack.js --progress --hide-modules --env=staging --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --env=production --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "dev": "yarn run local",
+    "prod": "yarn run production",
+    "watch": "yarn run local --watch"
   },
   "devDependencies": {
-    "@gridsome/remark-prismjs": "^0.4.0",
-    "@gridsome/transformer-remark": "0.6.*",
-    "@gridsome/vue-remark": "0.2.*",
-    "@noxify/gridsome-remark-classes": "^1.0.0",
-    "gridsome-plugin-pug": "0.0.*",
-    "gridsome-plugin-robots-txt": "^1.0.2",
-    "gridsome-plugin-tailwindcss": "3.*",
-    "gridsome-plugin-webpack-size": "^1.0.2",
-    "node-sass": "^4.14.1",
-    "pug": "3.*",
-    "reading-time": "1.*",
-    "sass-loader": "7.*",
-    "time-ago": "0.2.*"
+    "cross-env": "^3.2.3",
+    "highlight.js": "10.*",
+    "laravel-mix": "^4.0.0",
+    "laravel-mix-jigsaw": "^1.1.0",
+    "postcss-discard-comments": "4.*",
+    "sass": "^1.15.2",
+    "sass-loader": "^7.1.0",
+    "tailwindcss": "1.*",
+    "vue-template-compiler": "^2.6.12"
   }
 }
