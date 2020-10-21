@@ -8,7 +8,7 @@
         <link rel="canonical" href="{{ $page->getUrl() }}">
         <meta name="description" content="{{ $page->description }}">
         <title>{{ $page->title }}</title>
-        <link rel="stylesheet" href="{{ mix('css/page.css', 'assets/build') }}" media="none" onload="this.media = 'all';">
+        <link rel="stylesheet" href="{{ $page->baseUrl }}{{ mix('css/page.css', 'assets/build') }}" media="none" onload="this.media = 'all';">
     </head>
     <body class="max-w-screen-md mx-auto px-6 pb-4">
 		@include("_partials.header", [

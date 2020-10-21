@@ -6,7 +6,7 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>{{ $page->title }}</title>
 	<meta name="description" content="{{ $page->excerpt }}">
-	<link rel="stylesheet" href="{{ mix('css/post.css', 'assets/build') }}" media="none" onload="this.media = 'all';">
+	<link rel="stylesheet" href="{{ $page->baseUrl }}{{ mix('css/post.css', 'assets/build') }}" media="none" onload="this.media = 'all';">
 </head>
 <body class="max-w-screen-md mx-auto px-6 pb-4">
 	<header>
@@ -18,6 +18,6 @@
 			@yield("content")
 		</article>
 	</main>
-	<script type="text/javascript" src="{{ mix("js/post.js", "assets/build") }}"></script>
+	<script type="text/javascript" src="{{ $page->baseUrl }}{{ mix("js/post.js", "assets/build") }}"></script>
 </body>
 </html>
