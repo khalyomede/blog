@@ -30,7 +30,7 @@
 		</article>
 	</main>
 	<footer class="text-right">
-		<a href="https://github.com/khalyomede/blog/tree/master/source/_post/{{ $page->getFilename() }}.md" class="text-blue-700 hover:underline">Edit this page</a>
+		<a href="https://github.com/khalyomede/blog/edit/master/source/_post/{{ $page->getFilename() }}.md" class="text-blue-700 hover:underline">Edit this page</a>
 	</footer>
 	<script type="text/javascript" src="{{ $page->baseUrl }}{{ mix("js/post.js", "assets/build") }}"></script>
 </body>
