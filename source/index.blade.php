@@ -27,7 +27,7 @@
 						<div class="text-2xl">
 							{{ $article->title }}
 						</div>
-						<div class="text-gray-700 text-sm">
+						<div class="text-gray-600 text-sm">
 							{{ Carbon::parse($article->published_at)->fromNow() }} • {{ (new ReadTime($article->getContent()))->get() }}
 						</div>
 						<div>{{ $article->excerpt }}</div>
