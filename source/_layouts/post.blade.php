@@ -1,3 +1,11 @@
+@php
+	use Mtownsend\ReadTime\ReadTime;
+	use Carbon\Carbon;
+
+	$readingTime = (new ReadTime($page->getContent()))->get();
+	$publishedAt = Carbon::parse($page->published_at)->format("Y-m-d");
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,9 +22,13 @@
 	</header>
 	<main>
 		<h1 class="text-3xl mb-4">{{ $page->title }}</h1>
+		<div class="text-sm mb-4 text-gray-600">
+			{{ $publishedAt }} • {{ $readingTime }}
+		</div>
 		<article>
 			@yield("content")
 		</article>
+		
 	</main>
 	<script type="text/javascript" src="{{ $page->baseUrl }}{{ mix("js/post.js", "assets/build") }}"></script>
 </body>

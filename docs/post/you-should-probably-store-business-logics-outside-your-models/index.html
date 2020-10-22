@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>You should probably store business logics outside your models</title>
+	<meta name="description" content="Learn how Single Responsibilty Principle is so much important in a heavy business logic code base.">
+	<link rel="stylesheet" href="/blog/assets/build/css/post.css?id=d8aef1d7da9742ef83e5" media="none" onload="this.media = 'all';">
+</head>
+<body class="max-w-screen-md mx-auto px-6 pb-4">
+	<header>
+		<nav class="table mt-4 mb-10 w-full">
+	<a href="/blog/" class="font-bold hover:underline table-cell">Khalyomede</a>
+	<div class="table-cell text-right">
+		<a href="/blog/about/" class="hover:underline">About</a>
+	</div>
+</nav>
+	</header>
+	<main>
+		<h1 class="text-3xl mb-4">You should probably store business logics outside your models</h1>
+		<div class="text-sm mb-4 text-gray-600">
+			2020-10-22 • 4 minute read
+		</div>
+		<article>
+			<p>If you were used to store some bits of logic in your controller, be sure that is obviously the natural way to think of the code at first.</p>
+
+<p>However, you might have run into issues where one controller was doing some business logic that you partially need in another controller. So the first general rule to follow in order to keep a maintainable code base is to banish adding business logics inside your controllers.</p>
+
+<h2>Models: the ideal candidate to store business logic</h2>
+
+<p>If it is not advised to store heavy logics inside controllers, then the most fitted candidate is your model. Indeed, the model is perfectly suited for this since this is an ideal single source of truth as it is close to the stored data.</p>
+
+<p>Models plays a good role, so let's imagine we have articles. Articles have a price, and a related VAT rate. For convenience, we store VAT rates in a dedicated table to be able to managed multiple VAT rate for differents scenarios.</p>
+
+<pre><code class="language-php">&lt;?php
+// app/Article.php
+namespace App;
+
+use App\Vat;
+use Illuminate\Database\Eloquent\Model;
+
+class Article extends Model
+{
+  public function vat(): Relationship
+  {
+    return $this-&gt;belongsTo(Vat::class);
+  }
+
+  public function priceWithTax(): float
+  {
+    return $this-&gt;price * (1 + $this-&gt;vat-&gt;rate);
+  }
+}
+
+$article = Article::find(42);
+
+echo $article-&gt;price; // 10
+echo $article-&gt;vat-&gt;rate; // 0.2
+echo $article-&gt;priceWithTax(); // 12 (10 * 1.2)
+</code></pre>
+
+<p>It works, it is centralised, it does the job, it is testable. So what is wrong with this approach?</p>
+
+<h2>We mix things</h2>
+
+<p>Speaking of testing things. Let's check which code is required to test this.</p>
+
+<pre><code class="language-php">// tests/Feature/Model/ArticleTest.php
+namespace Tests\Feature\Model;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class ArticleTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function testGetPriceWithTaxReturnsTheCorrectPrice(): void
+    {
+        $article = factory(Article::class)-&gt;state("with_vat")-&gt;make();
+
+        $this-&gt;assertEquals($article-&gt;price * (1 + $article-&gt;vat-&gt;rate), $article-&gt;priceWithTax());
+    }
+}
+</code></pre>
+
+<p>The test if fine, it has the correct statement, nothing wrong at first sights.</p>
+
+<p>If you do not see what is wrong with this test, it is absolutely normal. You have been conditioned to write this kind of code, and it naturally make sense to mix the database and the business logic.</p>
+
+<h2>A matter of Single Responsibility Principle</h2>
+
+<p>What drives me crazy with this kind of code, is that it is trying to do everything at once.</p>
+
+<ul>
+<li>Why should we have to create a database record to test that our algorithm that compute prices is correct in the first place?</li>
+<li>If my Article field is renamed to <code>amount</code>, why this business logic has to fail?</li>
+</ul>
+
+<p>When you ask these question, everything seems clear: we are mixing apples and bananas. The database layer should not interfer with the business logic layer. This is why today Domain Driven Development is getting such a huge success among big companies that need to save their assets and evolve their code base the easiest possible.</p>
+
+<h2>Put the business logics aside from the rest</h2>
+
+<p>Without going too much into what DDD is, or even trying to replicate its principle, I think we need a new easy to implement paradigm to resolve this mixing issue.</p>
+
+<p>To do that, let's introduce an <code>Entity</code> namespace, where we will modelize in pure OOP our business logic. Keeping our article and price example, this is what the code would look like after refactoring:</p>
+
+<pre><code class="language-php">// App/Entity/Article.php
+namespace App\Entity;
+
+final class Article
+{
+    private float $price;
+    private float $vatRate;
+
+    public function __construct(float $price, float $vatRate)
+    {
+        // Make sure to validate the data by throwing exceptions if the values are not correct, like a negative price...
+
+        $this-&gt;price = $price;
+        $this-&gt;vatRate = $vatRate;
+    }
+
+    public function getPriceWithTax(): float
+    {
+        return $this-&gt;price * (1 + $vatRate);
+    }
+}
+</code></pre>
+
+<p>And our model becomes something like this:</p>
+
+<pre><code class="language-php">namespace App;
+
+use App\Vat;
+use Illuminate\Database\Eloquent\Model;
+
+class Article extends Model
+{
+  public function vat(): Relationship
+  {
+    return $this-&gt;belongsTo(Vat::class);
+  }
+
+  public function priceWithTax(): float
+  {
+    return (new App\Entity\Article($this-&gt;price, $this-&gt;vat-&gt;rate))-&gt;getPriceWithTax();
+  }
+}
+
+$article = Article::find(42);
+
+echo $article-&gt;price; // 10
+echo $article-&gt;vat-&gt;rate; // 0.2
+echo $article-&gt;priceWithTax(); // still 12 (10 * 1.2)
+</code></pre>
+
+<p>This adds some extra complexity in the sense that now the business logic is located in another file, but it brings so much simplicity when testing. You do not have to use the <code>RefreshDatabaseTrait</code>, which was re migrating every of our tables creation. You also can play with different scenario easily, without having to creating complex factories.</p>
+
+<p>Here is the refactored test:</p>
+
+<pre><code class="language-php">// tests/Feature/Model/ArticleTest.php
+namespace Tests\Feature\Model;
+
+use App\Entity\Article;
+use Tests\TestCase;
+
+class ArticleTest extends TestCase
+{
+    public function testGetPriceWithTaxReturnsTheCorrectPrice(): void
+    {
+        $this-&gt;assertEquals(12, (new Article(10, 0.2))-&gt;priceWithTax());
+    }
+}
+</code></pre>
+
+<p>As you can see, we have been able to trim some line of codes. We have also now a more straight to the point test, which do not shadows what we are trying to test withing factories that have set up default values in our models. All that complexity simply goes away because it has not its place when testing business logic.</p>
+
+<p>If you want a true maintainable code base, this is where you should strive to achieve. Separating concerns like this helps to make the code base more robust, such as if we make a table update, only the table related process will be impacted, not the business logic that have been built and well tested.</p>
+
+<h2>In conclusion</h2>
+
+<p>Achieving this kind of transition, or even adopting this habit, requires discipline, because you will be naturally tempted to either store business logic on models or controllers. It is our nature self that is asking for simplicity, getting the job done quickly.</p>
+
+<p>I take this challenge as taming our "savage" self. We as human have done a huge job hiding our true nature, by applying discipline to help live in peace together. We don't do our law and let the governement do it for us because this is the framework we all agree on when living in a country.</p>
+
+<p>The code is not much different than that, and to help developers live together, we have to setup rules that helps us specialize well in our own domain while interacting between each others without crossing the line or responsibilities.</p>
+		</article>
+		
+	</main>
+	<script type="text/javascript" src="/blog/assets/build/js/post.js?id=3923d98d4dad15d46aa9"></script>
+</body>
+</html>

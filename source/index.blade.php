@@ -10,12 +10,14 @@
 @endphp
 
 @section("content")
-	<h1 class="text-3xl mb-8 text-center">
-		<div>
-			Welcome to my blog
-		</div>
-		<small class="text-lg">This is where I save my thoughts about programming. Make yourself comfortable.</small>
-	</h1>
+	<div class="mb-8">
+		<h1 class="text-3xl mb-2 text-center">
+			<div>
+				Welcome to my blog
+			</div>
+		</h1>
+		<div class="text-lg text-center">This is where I save my thoughts about programming. Make yourself comfortable.</div>
+	</div>
 
 	@if($post->count() > 0)
 		<ul>
