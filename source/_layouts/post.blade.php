@@ -14,6 +14,7 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>{{ $page->title }}</title>
 	<meta name="description" content="{{ $page->excerpt }}">
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="stylesheet" href="{{ $page->baseUrl }}{{ mix('css/post.css', 'assets/build') }}" media="none" onload="this.media = 'all';">
 </head>
 <body class="max-w-screen-md mx-auto px-6 pb-4">

@@ -6,7 +6,8 @@
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="referrer" content="always">
         <meta name="description" content="{{ $page->description }}">
-        <title>{{ $page->title }}</title>
+		<title>{{ $page->title }}</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="stylesheet" href="{{ $page->baseUrl }}{{ mix('css/main.css', 'assets/build') }}" media="none" onload="this.media = 'all';">
     </head> 
     <body class="max-w-screen-md mx-auto px-6 pb-4">
