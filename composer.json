@@ -14,8 +14,8 @@
     "tightenco/jigsaw": "1.*"
   },
   "scripts": {
-    "build": "jigsaw build",
-    "serve": "jigsaw serve"
+    "build": "echo 'y' | jigsaw build production",
+    "serve": "echo 'y' | jigsaw serve"
   },
   "config": {
     "process-timeout": 0
