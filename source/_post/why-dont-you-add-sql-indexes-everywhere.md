@@ -56,7 +56,7 @@ INNER JOIN
 	author ON author.id = book.author_id
 ```
 
-When the SQL engine encouters this instruction, it will start from the book table, and check, for each author, if it matches the `author_id`, then it pulls the information. This would gives something like this:
+When the SQL engine encouters this instruction, it will start from the book table, and check, for each author, if it matches the `author_id`, then it pulls the information. This would give something like this:
 
 ```
 book 1 with author_id 12 matches author 1? No
@@ -170,7 +170,7 @@ And if we plug this to the search algorithm above, this gives us this code:
 for (const book of books) {
   const author = authors[book.author_id];
 
-  // Create a final object of the aggregated data
+  // Pull the information
 }
 ```
 

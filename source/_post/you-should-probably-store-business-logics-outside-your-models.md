@@ -24,10 +24,11 @@ namespace App;
 
 use App\Vat;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class Article extends Model
 {
-  public function vat(): Relationship
+  public function vat(): Relation
   {
     return $this->belongsTo(Vat::class);
   }
@@ -64,7 +65,7 @@ class ArticleTest extends TestCase
 
     public function testGetPriceWithTaxReturnsTheCorrectPrice(): void
     {
-		$article = factory(Article::class)->state("with_vat")->make();
+		$article = factory(Article::class)->states("with_vat")->make();
 
 		$this->assertEquals($article->price * (1 + $article->vat->rate), $article->priceWithTax());
     }
@@ -162,7 +163,7 @@ class ArticleTest extends TestCase
 }
 ```
 
-As you can see, we have been able to trim some line of codes. We have also now a more straight to the point test, which do not shadows what we are trying to test withing factories that have set up default values in our models. All that complexity simply goes away because it has not its place when testing business logic.
+As you can see, we have been able to trim some line of codes. We have also now a more straight to the point test, which do not shadows what we are trying to test within factories that have set up default values in our models. All that complexity simply goes away because it has not its place when testing business logic.
 
 If you want a true maintainable code base, this is where you should strive to achieve. Separating concerns like this helps to make the code base more robust, such as if we make a table update, only the table related process will be impacted, not the business logic that have been built and well tested.
 

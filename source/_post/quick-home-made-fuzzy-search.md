@@ -7,7 +7,7 @@ published_at: "2020-10-20 22:24:00"
 published: true
 ---
 
-Lot of occasion presented to me where I have two choice: either take this package, learn, install, implement, check for advanced usage, and ultimately spend some time just for a small fuzzy search dependent component (like a home page search), or just roll my own.
+Lot of occasions presented to me where I have two choice: either take this package, learn, install, implement, check for advanced usage, and ultimately spend some time just for a small fuzzy search dependent component (like a home page search), or just roll my own.
 
 Let's be honest, fuzzy search is one of these algorithm that you are tempted to think:
 

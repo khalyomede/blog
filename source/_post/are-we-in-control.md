@@ -35,7 +35,7 @@ At this exact moment, I was having this thought again: how, as humans, can we kn
 
 That is a quite paradoxal question. We are the author of this algorithm. We can read code. Are not we supposed to answer this question? At least, that is what your product management team expected from you since they hired you, isn't it?
 
-Or is it so impossible that we are lossing control over what we write?
+Or is it so impossible that we are loosing control over what we write?
 
 At this moment, I tried to find some ways to sort of log _everything_, like every call to functions, every conditions passed, etc...
 

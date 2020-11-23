@@ -13,7 +13,7 @@ We can thank the biggest contributors to make this utopia a reality. They push t
 
 ## A misusage
 
-One day, trying to setup another side project, I had to swap tools for performance matters. Operating the switch was not easy, because the previous tool, a web bundler, was doing so much behing the scene, that switching to the new, more rudimentary one, would force me to find alternatives to cover some of my needs.
+One day, trying to setup another side project, I had to swap tools for performance matters. Operating the switch was not easy, because the previous tool, a web bundler, was doing so much behind the scene, that switching to the new, more rudimentary one, would force me to find alternatives to cover some of my needs.
 
 Like anybody, I first tried to find existing tool, and hopefuly I found one that would fit my need: cache busting files by appending a hash in the name.
 
@@ -25,7 +25,7 @@ The author never replied, and in fact we could see in the first lines of the REA
 
 > “This project is feature complete.”
 
-Jokingly, I was even more reassured that I had found the diamond library I was looking for. In a hurry, I set this package up, plug it into the new bundler, and try the beast. But it did not had the expected behavior, the result was not the one I expected, so I must have missed additional configurations.
+Jokingly, I was even more reassured that I had found the diamond library I was looking for. In a hurry, I set this package up, plug it into the new bundler, and try the beast. But it did not had the expected behavior, so I must have missed additional configurations.
 
 I then went into the documentation, and tried nearly everything provided on the library. Some option were weird, but it was okay, since I would reach my goal.
 
@@ -33,13 +33,13 @@ After 1 hour of trial, I had lost my hope and remove the package. This got me th
 
 ## Bread for the masses
 
-Have you ever encoutered a library with a dedicated project for ideas? I did. One was clearly holding the namespace of the project, /idea. I always wondered, why would you separate the open source code from the improvement suggestion. Is it not the purposes of issues labels? Why would you add such a barrier between the possibility of improvements and the contributors force?
+Have you ever encoutered a library with a dedicated project for ideas? I did. One was clearly holding the namespace of the project, /idea. I always wondered, why would you separate the open source code from the improvement suggestion. Is it not the purpose of issues labels? Why would you add such a barrier between the possibility of improvements and the contributors force?
 
 Worse, I saw a (famous) package pushing "read only" split of its packages, which sometimes do not contain any README. With the same /idea system, the improvements and bugs would be kept aside.
 
 This is in my opninion a dangerous way of providing open source to people. Because now, open source is more than just "open access to the code". It is a true way of sharing and empowering things, no matter the purpose of the library. This is a place were true innovations come to life, and where anyone can push the idea further in order to have a **true** impact on our world.
 
-This kind of project organization are synonym with a drastic reduced numbers of proposal, bug alerts, and closes at the end the access to improvements.
+This kind of project organization is synonym with a drastic reduced numbers of proposal, bug alerts, and closes at the end the access to improvements.
 
 ## Should we follow this way
 

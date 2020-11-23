@@ -74,7 +74,7 @@ getTranslation("Welcome to my blog"); // "Bienvenue sur mon blog"
 
 <p>I have built an app (that I currently do not know if I will release or no), which is about teaching about nature and science by displaying a feed of news and facts.</p>
 
-<p>Using only decoupled packages (and aproximatively 80% of mine), I managed to use a maximum of 0.7 Mb of memory (and a serber latency of about 7-20 ms on an AWS free tier t2.micro server running Ubuntu 20).</p>
+<p>Using only decoupled packages (and aproximatively 80% of mine), I managed to use a maximum of 0.7 Mb of memory (and a server latency of about 7-20 ms on an AWS free tier t2.micro server running Ubuntu 20).</p>
 
 <p>For comparison, Laravel (no negatives critics intended) loads the hello world page with a memory peak usage of about 12 Mb. It's something that I expected since you got a whole lot of features, including Pipes, Validation, Eloquent and events, Queing, ... out of the box, and activated.</p>
 
@@ -88,11 +88,11 @@ getTranslation("Welcome to my blog"); // "Bienvenue sur mon blog"
 
 <h2>The downsides</h2>
 
-<p>The main downside is the time you need to spend to document yourself to implement a new library to your web app. This is something that most of the time have been solved if you use a framewokr (queue management, ORM, logging, ...).</p>
+<p>The main downside is the time you need to spend to document yourself to implement a new library to your web app. This is something that most of the time have been solved if you use a framework (queue management, ORM, logging, ...).</p>
 
 <p>The other downside is the organisational part. Using a framework is a huge insurance for big companies since the framework is opniated on the way to organise views, models, commands, ... This downside can be a showstopper if you fear or do not have the right knowledge to organize correctly (which means the maintenance is tough).</p>
 
-<p>But I have seen framework with bad code habits and wrong code organisation too, so this is something to debate. One can imagine setting a de-facto code structure and iterating on this even using decoupled programing (the proof is the people that use a <code>app/Model</code> folder, when Laravel natively put them in <code>app</code> folder, something that will change in version 8).</p>
+<p>But I have seen usage of popular frameworks with bad code habits and wrong code organisation too, so this is something to debate. One can imagine setting a de-facto code structure and iterating on this even using decoupled programing (the proof is the people that use a <code>app/Model</code> folder, when Laravel natively put them in <code>app</code> folder, something that will change in version 8).</p>
 
 <h2>Conclusions</h2>
 
